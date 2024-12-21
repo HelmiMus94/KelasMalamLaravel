@@ -17,7 +17,7 @@ class UserController extends Controller
         //dd( 'users');
         return view('user.index', [
             'users' => $users
-        ] );
+        ]);
     }
 
     /**
@@ -52,16 +52,35 @@ class UserController extends Controller
         //dd($user);
 
         return view('user.edit', [
-            'user'=>$user
+            'user' => $user
         ]);
     }
 
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, string $id)
+    public function update(Request $request, User $user)
     {
-        //
+        //echo "data received";
+
+        $rules = [
+            'name' => 'required|string|max:255|min:5',
+            'email' => 'required|email|unique:users,email,' . $user->id,
+            'user_type' => 'required|in:normal,admin'
+
+
+        ];
+
+        $validated_data = $request->validate($rules);
+        $user->name = $validated_data['name'];
+        $user->email = $validated_data['email'];
+        $user->user_type = $validated_data['user_type'];
+
+
+        $user->save();
+
+        return redirect()->route('user.index')
+            ->with('success', 'User has been updated');
     }
 
     /**
